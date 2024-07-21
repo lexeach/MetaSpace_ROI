@@ -1,6 +1,6 @@
 const contractAddress = "0x194433AC13fb394Dd8bDBbe667713E20C1957530"; // Replace with your deployed contract address
 const examAddress = "0x75221506B9FC53fDdF3e516017926cbA6b5B3fd6";
-const stableCoinAddress = "0x855e5f4917Bb78E1Fbd6962D03A0993f8F5033Cb";
+const stableCoinAddress = "0x0EB11261F9F778fEfd688e2dfAdB77862E96605b";
 
 const abi = [
   {
