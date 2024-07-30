@@ -1,4 +1,4 @@
-const contractAddress = "0x194433AC13fb394Dd8bDBbe667713E20C1957530"; // Replace with your deployed contract address
+const contractAddress = "0xa14B2933380977F95a1EdFCFc70802B11C8792af"; // Replace with your deployed contract address
 const examAddress = "0x75221506B9FC53fDdF3e516017926cbA6b5B3fd6";
 const stableCoinAddress = "0x0EB11261F9F778fEfd688e2dfAdB77862E96605b";
 
@@ -454,6 +454,7 @@ const abi = [
       { internalType: "uint256", name: "takenROI", type: "uint256" },
       { internalType: "uint256", name: "stakeTimes", type: "uint256" },
       { internalType: "uint256", name: "incomeMissed", type: "uint256" },
+      { internalType: "uint256", name: "deposit", type: "uint256" },
     ],
     stateMutability: "view",
     type: "function",

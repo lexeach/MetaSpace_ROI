@@ -36,13 +36,22 @@ const Dashboard = () => {
   const [levelIncome, setLevelIncome] = useState([]);
   const [levelsRoi, setLevelsRoi] = useState([]);
   const [users, setUsers] = useState([]);
+  const [web3, setWeb3] = useState();
+  const [isOwner, setIsOwner] = useState();
+  const [rewardInfo, setRewardInfo] = useState([]);
+  const [searchRound, setSearchRound] = useState(1);
+  const [roundProfitData, setRoundProfitData] = useState(null);
+  const [userProfitData, setUserProfitData] = useState(null);
 
   const [isExamQualifier, setIsExamQualifier] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const storedAddress = localStorage.getItem("connectedAddress");
     if (storedAddress) {
       setConnectedAddress(storedAddress);
+      // setConnectedAddress("0xb8D4217B314192857a2Ba34F413008F4EAdfd0f0");
+
       setIsConnected(true);
     }
     if (window.ethereum) {
@@ -127,6 +136,7 @@ const Dashboard = () => {
     const initWeb3AndContracts = async () => {
       if (connectedAddress) {
         const web3 = new Web3(window.ethereum);
+        setWeb3(web3);
         const contractInstance = new web3.eth.Contract(abi, contractAddress);
         const examInstance = new web3.eth.Contract(examABI, examAddress);
         const stableInstance = new web3.eth.Contract(
@@ -152,6 +162,16 @@ const Dashboard = () => {
         const currRound = await contractInstance.methods
           .currRound()
           .call({ from: connectedAddress });
+        let ownerWallet = await contractInstance.methods
+          .ownerWallet()
+          .call({ from: connectedAddress });
+
+        if (connectedAddress.toLowerCase() == ownerWallet.toLowerCase()) {
+          setIsOwner(true);
+          console.log("its set to true", isOwner);
+        } else {
+          setIsOwner(false);
+        }
 
         setCurrRound(currRound);
         let currRoundStartTime = await contractInstance.methods
@@ -181,17 +201,18 @@ const Dashboard = () => {
         setRewards(rewards);
 
         let roundProfitPercent = await contractInstance.methods
-          .roundProfitPercent(currRound)
+          .roundProfitPercent(Number(currRound) - 1)
           .call({ from: connectedAddress });
-        setRoundProfitPercent(roundProfitPercent.profit);
+        setRoundProfitData(roundProfitPercent.profit);
         let roundProfitUser = await contractInstance.methods
-          .roundProfitUser(currRound, connectedAddress)
+          .roundProfitUser(Number(currRound) - 1, connectedAddress)
           .call({ from: connectedAddress });
-        setRoundProfitUser(roundProfitUser);
+        setUserProfitData(roundProfitUser);
 
         let stakeAmount = await contractInstance.methods
           .stakeAmount(connectedAddress)
           .call({ from: connectedAddress });
+
         setStakeAmount(stakeAmount);
         let startTime = await contractInstance.methods
           .startTime()
@@ -200,7 +221,7 @@ const Dashboard = () => {
         let startRound = await contractInstance.methods
           .startRound(connectedAddress)
           .call({ from: connectedAddress });
-        setStartRound(startRound);
+        setStartRound(Number(startRound));
 
         let takenRound = await contractInstance.methods
           .takenRound(connectedAddress)
@@ -226,28 +247,76 @@ const Dashboard = () => {
         let levels = await contractInstance.methods
           .levelsIncome(connectedAddress)
           .call({ from: connectedAddress });
+        let teams = await contractInstance.methods
+          .levels(connectedAddress)
+          .call({ from: connectedAddress });
 
         const levelIncome = [
-          { level: 1, income: levels.one },
-          { level: 2, income: levels.two },
-          { level: 3, income: levels.three },
-          { level: 4, income: levels.four },
-          { level: 5, income: levels.five },
-          { level: 6, income: levels.six },
-          { level: 7, income: levels.seven },
-          { level: 8, income: levels.eight },
-          { level: 9, income: levels.nine },
-          { level: 10, income: levels.ten },
-          { level: 11, income: levels.eleven },
-          { level: 12, income: levels.twelve },
-          { level: 13, income: levels.thirteen },
-          { level: 14, income: levels.forteen },
+          { level: 1, income: levels.one, team: teams ? Number(teams.one) : 0 },
+          { level: 2, income: levels.two, team: teams ? Number(teams.two) : 0 },
+          {
+            level: 3,
+            income: levels.three,
+            team: teams ? Number(teams.three) : 0,
+          },
+          {
+            level: 4,
+            income: levels.four,
+            team: teams ? Number(teams.four) : 0,
+          },
+          {
+            level: 5,
+            income: levels.five,
+            team: teams ? Number(teams.five) : 0,
+          },
+          { level: 6, income: levels.six, team: teams ? Number(teams.six) : 0 },
+          {
+            level: 7,
+            income: levels.seven,
+            team: teams ? Number(teams.seven) : 0,
+          },
+          {
+            level: 8,
+            income: levels.eight,
+            team: teams ? Number(teams.eight) : 0,
+          },
+          {
+            level: 9,
+            income: levels.nine,
+            team: teams ? Number(teams.nine) : 0,
+          },
+          {
+            level: 10,
+            income: levels.ten,
+            team: teams ? Number(teams.ten) : 0,
+          },
+          {
+            level: 11,
+            income: levels.eleven,
+            team: teams ? Number(teams.eleven) : 0,
+          },
+          {
+            level: 12,
+            income: levels.twelve,
+            team: teams ? Number(teams.twelve) : 0,
+          },
+          {
+            level: 13,
+            income: levels.thirteen,
+            team: teams ? Number(teams.thirteen) : 0,
+          },
+          {
+            level: 14,
+            income: levels.forteen,
+            team: teams ? Number(teams.forteen) : 0,
+          },
         ];
 
         setLevelIncome(levelIncome);
         let levelsRoi1 = await contractInstance.methods
           .levelsRoi(connectedAddress)
           .call({ from: connectedAddress });
+
         const levelsRoi = [
           { level: 1, income: levelsRoi1.one },
           { level: 2, income: levelsRoi1.two },
@@ -265,19 +334,54 @@ const Dashboard = () => {
           { level: 14, income: levelsRoi1.forteen },
         ];
         setLevelsRoi(levelsRoi);
-        let users = await contractInstance.methods
-          .users(connectedAddress)
+        let users1 = await contractInstance.methods
+          .users(connectedAddress) //connectedAddress
           .call({ from: connectedAddress });
         const userList = [
-          { title: "isExist", value: users.isExist },
-          { title: "User ID", value: users.id },
-          { title: "Referrer ID", value: users.referrerID },
-          { title: "Referred Users", value: users.referredUsers },
-          { title: "Income", value: users.income },
-          { title: "Level Income Received", value: users.levelIncomeReceived },
-          { title: "Taken ROI", value: users.takenROI },
-          { title: "Stake Times", value: users.stakeTimes },
-          { title: "Income Missed", value: users.incomeMissed },
+          { title: "User ID", value: Number(users1.id) },
+          { title: "Sponsor ID", value: Number(users1.referrerID) },
+          { title: "Direct Users", value: users1.referredUsers1 },
+          {
+            title: "Income",
+            value:
+              users1.income > 0
+                ? parseFloat(
+                    Web3.utils.fromWei(users1.income, "ether")
+                  ).toFixed(4)
+                : "0.0000",
+          },
+          {
+            title: "Level Income Received",
+            value: users1.levelIncomeReceived
+              ? parseFloat(
+                  Web3.utils.fromWei(users1.levelIncomeReceived, "ether")
+                ).toFixed(4)
+              : "0.0000",
+          },
+          {
+            title: "Taken ROI",
+            value: users1.takenROI
+              ? parseFloat(
+                  Web3.utils.fromWei(users1.takenROI, "ether")
+                ).toFixed(4)
+              : "0.0000",
+          },
+          {
+            title: "Stake Times",
+            value:
+              Number(users1.stakeTimes) > 0
+                ? moment.unix(Number(users1.stakeTimes)).format("DD-MMMM-YYYY")
+                : "00/00/00",
+          },
+          { title: "Income Missed", value: users1.incomeMissed },
+          {
+            title: "Deposit ",
+            value: users1.deposit
+              ? parseFloat(Web3.utils.fromWei(users1.deposit, "ether")).toFixed(
+                  4
+                )
+              : "0.0000",
+          },
         ];
 
         setUsers(userList);
@@ -286,12 +390,40 @@ const Dashboard = () => {
     userLevelInfoCall();
   }, [contractInstance, connectedAddress]);
 
+  useEffect(() => {
+    const rewardInfos = async () => {
+      if (contractInstance && connectedAddress) {
+        const rewardIn = [
+          { level: 1, status: "NO" },
+          { level: 2, status: "NO" },
+          { level: 3, status: "NO" },
+          { level: 4, status: "NO" },
+          { level: 5, status: "NO" },
+          { level: 6, status: "NO" },
+          { level: 7, status: "NO" },
+        ];
+        for (let i = 0; i < 7; i++) {
+          let rewards = await contractInstance.methods
+            .rewards(i + 1, connectedAddress)
+            .call({ from: connectedAddress });
+          rewardIn[i].status = rewards ? "YES" : "NO";
+        }
+        setRewardInfo(rewardIn);
+      }
+    };
+    rewardInfos();
+  }, [contractInstance, connectedAddress]);
+
   const handlePayNowClick = async () => {
-    const referrerId = document.getElementById("referralIdInput").value;
-    const regAmount = document.getElementById("regAmountInput").value;
+    let referrerId = document.getElementById("referralIdInput").value;
+    let regAmount = document.getElementById("regAmountInput").value;
+    regAmount = web3.utils.toWei(regAmount, "ether");
+
     console.log("Referr ID: ", referrerId, regAmount);
 
     try {
+      setIsLoading(true);
+
       let userList = await contractInstance.methods
         .userList(referrerId)
         .call({ from: connectedAddress });
@@ -300,6 +432,7 @@ const Dashboard = () => {
         .send({ from: connectedAddress })
         .on("error", function (error) {
           alert("Error On apprve:", error);
+          setIsLoading(false); // Stop loading on error
         })
         .on("receipt", async function (receipt) {
           await contractInstance.methods
@@ -308,13 +441,17 @@ const Dashboard = () => {
             .on("error", function (error) {
               console.log("Contract error: ", error);
               alert("Error On Registration:", error);
+              setIsLoading(false); // Stop loading on error
             })
             .on("receipt", async function (receipt) {
               alert("Registered Successfully");
+              setIsLoading(false); // Stop loading on error
             });
         });
     } catch (e) {
       console.log("Error: ", e);
+      setIsLoading(false); // Stop loading on error
+
       alert("Error in Catch");
     }
 
@@ -322,8 +459,9 @@ const Dashboard = () => {
   };
   const handleWithdrawStable = async () => {
     const toAddressInput = document.getElementById("toAddressInput").value;
-    const stableAmountInput =
-      document.getElementById("stableAmountInput").value;
+    let stableAmountInput = document.getElementById("stableAmountInput").value;
+    stableAmountInput = web3.utils.toWei(stableAmountInput, "ether");
+
     console.log("Referr ID: ", toAddressInput, stableAmountInput);
 
     try {
@@ -339,16 +477,15 @@ const Dashboard = () => {
         });
     } catch (e) {
       console.log("Error: ", e);
+
       alert("Error in Catch");
     }
   };
 
   const [newPartnerAddress, setNewPartnerAddress] = useState("");
-  //handleTransferPartnershipClick
   const handleCloseRoundPercent = async () => {
     let closeRoundPercentage =
       document.getElementById("closeRoundPercent").value;
-    //   const loader = document.getElementById("loader-overlay");
     console.log("closeRoundPercentage: ", closeRoundPercentage);
 
     try {
@@ -370,9 +507,26 @@ const Dashboard = () => {
     }
     // transferPartnership(newPartnerAddress);
   };
+
+  const handleSearchClick = async () => {
+    if (connectedAddress && contractInstance) {
+      const roundData = await contractInstance.methods
+        .roundProfitPercent(searchRound)
+        .call({ from: connectedAddress });
+      setRoundProfitData(roundData);
+
+      const userData = await contractInstance.methods
+        .roundProfitPercent(searchRound, connectedAddress)
+        .call({ from: connectedAddress });
+
+      setUserProfitData(userData);
+    }
+    // }
+  };
   const handleDepositProfit = async () => {
     let depositProfitInput =
       document.getElementById("depositProfitInput").value;
+    depositProfitInput = web3.utils.toWei(depositProfitInput, "ether");
 
     try {
       const payPartnerFee1 = await contractInstance.methods
@@ -395,6 +549,7 @@ const Dashboard = () => {
     let roundCloserAddressInput = document.getElementById(
       "roundCloserAddressInput"
     ).value;
+
     try {
       const payPartnerFee1 = await contractInstance.methods
         .setRoundCloserAddress(roundCloserAddressInput)
@@ -423,7 +578,24 @@ const Dashboard = () => {
           alert("Error On PAy Partner Fee:", error);
         })
         .on("receipt", async function (receipt) {
-          alert("Pay Partner Fee Successfully");
+          alert("Withdraw ROI Successfully");
+        });
+      // });
+    } catch (e) {
+      alert("Error in Catch", e);
+    }
+  };
+  const handleWithdrawPrincipal = async () => {
+    try {
+      await contractInstance.methods
+        .withdrawPrincipal()
+        .send({ from: connectedAddress })
+        .on("error", function (error) {
+          console.log("Contract error: ", error);
+          alert("Error On PAy Partner Fee:", error);
+        })
+        .on("receipt", async function (receipt) {
+          alert("Widrwal Principal Successfull");
         });
       // });
     } catch (e) {
@@ -433,6 +605,12 @@ const Dashboard = () => {
 
   return (
     <div className="wrap">
+      {isLoading && (
+        <div>
+          <div className="loader">Transacting...</div>
+        </div>
+      )}{" "}
+      {/* Display loader when isLoading is true */}
       {/* Dashboard Container */}
       <div className="dashboard min-vh-100">
         {/* Navbar */}
@@ -481,10 +659,10 @@ const Dashboard = () => {
                   {Number(currRoundStartTime) > 0
                     ? moment
                         .unix(Number(currRoundStartTime))
-                        .format("DD-MM-YYYY")
+                        .format("DD-MMMM-YYYY")
                     : "00/00/00"}
                 </p>
-                <p className="cards-title">Curr Round Start Time</p>
+                <p className="cards-title">Curr Round Start Date</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
@@ -502,7 +680,7 @@ const Dashboard = () => {
                     ? parseFloat(
                         Web3.utils.fromWei(directIncome, "ether")
                       ).toFixed(4)
-                    : 0}
+                    : "0.0000"}
                 </p>
                 <p className="cards-title">Direct Income</p>
               </div>
@@ -516,8 +694,8 @@ const Dashboard = () => {
               <div className="box">
                 <p id="tokenPrice" className="cards-numbers">
                   {Number(endTime) > 0
-                    ? moment.unix(Number(endTime)).format("DD-MM-YYYY")
-                    : "00/00/00"}
+                    ? moment.unix(Number(endTime)).format("DD-MMMM-YYYY")
+                    : "00/00/0000"}
                 </p>
                 <p className="cards-title">End Time</p>
               </div>
@@ -526,7 +704,7 @@ const Dashboard = () => {
               <div className="box">
                 <p id="partnerCount1" className="cards-numbers">
                   {Number(regTime) > 0
-                    ? moment.unix(Number(regTime)).format("DD-MM-YYYY")
+                    ? moment.unix(Number(regTime)).format("DD-MMMM-YYYY")
                     : "00/00/00"}
                 </p>
                 <p className="cards-title">Register Time</p>
@@ -534,23 +712,23 @@ const Dashboard = () => {
             </div>
             <div className="col-lg-3 col-sm-6">
               <div className="box">
-                <p id="totalReward" className="cards-numbers">
-                  {rewards
-                    ? parseFloat(Web3.utils.fromWei(rewards, "ether")).toFixed(
-                        4
-                      )
-                    : 0}{" "}
-                  <span className="sub-number"></span>
+                <p id="tokenPrice" className="cards-numbers">
+                  {takenRound ? Number(takenRound) : 0}{" "}
                 </p>
-                <p className="cards-title">Rewards</p>
+                <p className="cards-title">Taken Round</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
               <div className="box">
-                <p id="partnerID1" className="cards-numbers">
-                  {Number(roundProfitPercent) ? Number(roundProfitPercent) : 0}
+                <p id="totalReward" className="cards-numbers">
+                  {withdrawableROI
+                    ? parseFloat(
+                        Web3.utils.fromWei(withdrawableROI, "ether")
+                      ).toFixed(4)
+                    : "0.0000"}{" "}
+                  <span className="sub-number"></span>
                 </p>
-                <p className="cards-title">Round Profit Percent</p>
+                <p className="cards-title">Withdrawable ROI</p>
               </div>
             </div>
           </div>
@@ -560,14 +738,14 @@ const Dashboard = () => {
           <div className="row">
             <div className="col-lg-3 col-sm-6">
               <div className="box">
-                <p id="tokenPrice" className="cards-numbers">
-                  {roundProfitUser
+                <p id="partnerCount1" className="cards-numbers">
+                  {totalDeposit
                     ? parseFloat(
-                        Web3.utils.fromWei(roundProfitUser, "ether")
+                        Web3.utils.fromWei(totalDeposit, "ether")
                       ).toFixed(4)
-                    : 0}{" "}
+                    : "0.0000"}{" "}
                 </p>
-                <p className="cards-title">Round Profit User</p>
+                <p className="cards-title">Total Staked</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
@@ -579,15 +757,15 @@ const Dashboard = () => {
                       ).toFixed(4)
                     : 0}{" "}
                 </p>
-                <p className="cards-title">Register Time</p>
+                <p className="cards-title">Your Staked Time</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
               <div className="box">
                 <p id="totalReward" className="cards-numbers">
                   {Number(startTime) > 0
-                    ? moment.unix(Number(startTime)).format("DD-MM-YYYY")
-                    : "00/00/00"}
+                    ? moment.unix(Number(startTime)).format("DD-MMMM-YYYY")
+                    : "00/00/0000"}
 
                   <span className="sub-number"></span>
                 </p>
@@ -604,52 +782,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        {/* Fourth Row */}
-        <div className="head-card skew mx-5 mt-4">
-          <div className="row">
-            <div className="col-lg-3 col-sm-6">
-              <div className="box">
-                <p id="tokenPrice" className="cards-numbers">
-                  {takenRound ? Number(takenRound) : 0}{" "}
-                </p>
-                <p className="cards-title">Taken Round</p>
-              </div>
-            </div>
-            <div className="col-lg-3 col-sm-6">
-              <div className="box">
-                <p id="partnerCount1" className="cards-numbers">
-                  {totalDeposit
-                    ? parseFloat(
-                        Web3.utils.fromWei(totalDeposit, "ether")
-                      ).toFixed(4)
-                    : 0}{" "}
-                </p>
-                <p className="cards-title">Total Deposit</p>
-              </div>
-            </div>
-            <div className="col-lg-3 col-sm-6">
-              <div className="box">
-                <p id="totalReward" className="cards-numbers">
-                  {withdrawableROI
-                    ? parseFloat(
-                        Web3.utils.fromWei(withdrawableROI, "ether")
-                      ).toFixed(4)
-                    : 0}{" "}
-                  <span className="sub-number"></span>
-                </p>
-                <p className="cards-title">Withdrawable ROI</p>
-              </div>
-            </div>
-            <div className="col-lg-3 col-sm-6">
-              <div className="box">
-                <p id="partnerID1" className="cards-numbers">
-                  {Number(startRound) ? Number(startRound) : 0}
-                </p>
-                <p className="cards-title">Not Assigned</p>
-              </div>
-            </div>
-          </div>
-        </div>
+
         <div className="row px-5">
           <div className="col-lg-6">
             <div className="d-flex justify-content-center mt-4">
@@ -659,16 +792,26 @@ const Dashboard = () => {
             </div>
             <div className="user-box">
               <div className="user-item">
-                <div className="col-6 user-title">Level Number</div>
-                <div className="col-6  user-value">Income</div>
+                <div className="col-4 user-title">Level Number</div>
+                <div className="col-4  user-value">Income</div>
+                <div className="col-4  user-value">Team</div>
+
                 {/* <div className="col-3 user-value">Upgraded Count</div>
                 <div className="col-2 user-value">Upgrade Status</div> */}
               </div>
-              {levelIncome.map(({ level, income }) => (
+              {levelIncome.map(({ level, income, team }) => (
                 <div className="user-item" key={level}>
-                  <div className="col-6 user-title">Level {level}</div>
-                  <div className="col-6 user-value">
-                    {income ? Number(income) : 0}
+                  <div className="col-4 user-title">Level {level}</div>
+                  <div className="col-4 user-value">
+                    {/* {income ? Number(income) : 0} */}
+                    {income
+                      ? parseFloat(Web3.utils.fromWei(income, "ether")).toFixed(
+                          4
+                        )
+                      : "0.0000"}
+                  </div>
+                  <div className="col-4 user-value">
+                    {team ? Number(team) : 0}
                   </div>
                 </div>
               ))}
@@ -692,17 +835,125 @@ const Dashboard = () => {
                 <div className="user-item" key={level}>
                   <div className="col-6 user-title">Level {level}</div>
                   <div className="col-6 user-value">
-                    {income ? Number(income) : 0}
+                    {income
+                      ? parseFloat(Web3.utils.fromWei(income, "ether")).toFixed(
+                          4
+                        )
+                      : "0.0000"}
                   </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
         <div className="row px-5">
-          <div className="col-lg-6 mt-4">
+          <div className="col-lg-6">
             <div className="d-flex justify-content-center mt-4">
+              <div className="network-heading text-center rounded-top-2">
+                Reward Info
+              </div>
+            </div>
+            <div className="user-box">
+              <div className="user-item">
+                <div className="col-6 user-title">Reward Level</div>
+                <div className="col-6 user-value">Status</div>
+              </div>
+              {rewardInfo.map(({ level, status }) => (
+                <div className="user-item" key={level}>
+                  <div className="col-6 user-title">Level {level}</div>
+                  <div className="col-6 user-value">{status}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Data */}
+          <div className="col-lg-6 mt-4">
+            <div className="swap-wrap p-3">
+              <div className="swap-head1 text-center">Round Info</div>
+              <div className="swap">
+                <div className="swap-box">
+                  <div className="node mb-3 d-flex align-items-center">
+                    {/* <p className="node-title me-2 mb-0">Search by Round:</p> */}
+                    <input
+                      className="input-node bg-dashboard form-control ps-2 me-2"
+                      placeholder="Enter Round"
+                      type="number"
+                      id="searchRoundInput"
+                    />
+                    <button className="mybtn2" onClick={handleSearchClick}>
+                      Search
+                    </button>
+                  </div>
+                  <div className="result-box mt-4">
+                    {/* <div className="result-item">
+                      <div className="result-title">Time:</div>
+                      <div id="resultTime" className="result-value">
+                        {roundProfitData
+                          ? Number(roundProfitData.time) > 0
+                            ? moment
+                                .unix(Number(roundProfitData.time))
+                                .format("DD-MM-YYYY")
+                            : "00/00/00"
+                          : "00/00/00"}
+                      </div>
+                    </div> */}
+                    <div className="result-item">
+                      <div className="result-title">Profit:</div>
+                      <div id="resultProfit" className="result-value">
+                        {roundProfitData
+                          ? roundProfitData.profit > 0
+                            ? parseFloat(
+                                Web3.utils.fromWei(
+                                  roundProfitData.profit,
+                                  "ether"
+                                )
+                              ).toFixed(4)
+                            : "0.0000"
+                          : "0.0000"}
+                      </div>
+                    </div>
+                    {/* <div className="result-item">
+                      <div className="result-title">Win Amount:</div>
+                      <div id="resultWinAmount" className="result-value">
+                        {roundProfitData
+                          ? roundProfitData.winAmount > 0
+                            ? parseFloat(
+                                Web3.utils.fromWei(
+                                  roundProfitData.winAmount,
+                                  "ether"
+                                )
+                              ).toFixed(4)
+                            : "0.0000"
+                          : "0.0000"}
+                      </div>
+                    </div> */}
+                    <div className="result-item">
+                      <div className="result-title">Reward:</div>
+                      <div id="resultReward" className="result-value">
+                        {userProfitData
+                          ? userProfitData.reward > 0
+                            ? parseFloat(
+                                Web3.utils.fromWei(
+                                  userProfitData.reward,
+                                  "ether"
+                                )
+                              ).toFixed(4)
+                            : "0.0000"
+                          : "0.0000"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* </div> */}
+        <div className="row px-2">
+          <div className="col-lg-6">
+            <div className="d-flex justify-content-center ">
               <div className="network-heading text-center rounded-top-2">
                 USERS Data
               </div>
@@ -712,205 +963,43 @@ const Dashboard = () => {
                 <div className="user-item" key={title}>
                   <div className="col-6 user-title">{title}</div>
                   <div id={title} className="col-6 user-value">
-                    {value ? Number(value) : 0}
+                    {value ? value : 0}
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Registration */}
-          <div className="col-lg-6 mt-4">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">Registration</div>
-              <div className="swap mt-4">
-                <div className="swap-box">
-                  <div className="node">
-                    <p className="node-title">Referrer ID</p>
-                    <input
-                      className="input-node bg-dashboard form-control ps-2"
-                      defaultValue="0"
-                      placeholder="Referral Id"
-                      type="number"
-                      id="referralIdInput"
-                    />
-                  </div>
-                  <div className="node">
-                    <p className="node-title">Amount</p>
-                    <input
-                      className="input-node bg-dashboard form-control ps-2"
-                      defaultValue="0"
-                      placeholder="Registration Amount"
-                      type="number"
-                      id="regAmountInput"
-                    />
-                  </div>
-                  <div className="pay text-center mt-4">
-                    <button className="mybtn1" onClick={handlePayNowClick}>
-                      Pay Now
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* )} */}
-        </div>
-
-        <div className="row px-5">
-          {/*Close Round*/}
-          <div id="onlyForPartner1" className="col-lg-6 mt-6">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">Close Round</div>
-              <div className="swap">
-                <div className="swap-box">
-                  <div className="node">
-                    <p className="node-title">Close Round Percentage</p>
-                    <input
-                      id="closeRoundPercent"
-                      className="input-node bg-dashboard form-control ps-2"
-                      placeholder="Percentage"
-                      type="text"
-                    />
-                  </div>
-                  <div className="pay text-center mt-5">
-                    <button
-                      className="mybtn1"
-                      onClick={handleCloseRoundPercent}
-                    >
-                      Close Round
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Withdraw ROI */}
-          <div id="onlyExamQualifier1" className="col-lg-6 mt-4">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">Withdraw ROI</div>
-              <div className="pay text-center mt-5">
-                <button className="mybtn1" onClick={handleWithdrawROI}>
-                  Withdraw ROI
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* depositProfit (0x33c19ab0)*/}
-          <div id="onlyForPartner1" className="col-lg-6 mt-6">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">Deposit Profit</div>
-              <div className="swap">
-                <div className="swap-box">
-                  <div className="node">
-                    <p className="node-title">Deposit Profit Amount</p>
-                    <input
-                      id="depositProfitInput"
-                      className="input-node bg-dashboard form-control ps-2"
-                      placeholder="Amount"
-                      type="text"
-                    />
-                  </div>
-                  <div className="pay text-center mt-5">
-                    <button className="mybtn1" onClick={handleDepositProfit}>
-                      Deposit Profit
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* setRoundCloserAddress (0x29b51cff)*/}
-          <div id="onlyForPartner1" className="col-lg-6 mt-6">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">
-                Set Round Closer Address
-              </div>
-              <div className="swap">
-                <div className="swap-box">
-                  <div className="node">
-                    <p className="node-title">Round Closer Address </p>
-                    <input
-                      id="roundCloserAddressInput"
-                      className="input-node bg-dashboard form-control ps-2"
-                      placeholder="Address"
-                      type="text"
-                    />
-                  </div>
-                  <div className="pay text-center mt-5">
-                    <button
-                      className="mybtn1"
-                      onClick={handleRoundCloserAddress}
-                    >
-                      Round Closer Address
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* withdrawalStableCoin (0x4f3283fe) */}
-          <div className="col-lg-6 mt-4">
-            <div className="swap-wrap p-5">
-              <div className="swap-head text-center">
-                Withdrawal Stable Coin
-              </div>
-              <div className="swap mt-4">
-                <div className="swap-box">
-                  <div className="node">
-                    <p className="node-title">To Address</p>
-                    <input
-                      className="input-node bg-dashboard form-control ps-2"
-                      // defaultValue="0"
-                      placeholder="Address"
-                      type="string"
-                      id="toAddressInput"
-                    />
-                  </div>
-                  <div className="node">
-                    <p className="node-title">Amount</p>
-                    <input
-                      className="input-node bg-dashboard form-control ps-2"
-                      // defaultValue="0"
-                      placeholder="Withdraw Amount"
-                      type="number"
-                      id="stableAmountInput"
-                    />
-                  </div>
-                  <div className="pay text-center mt-4">
-                    <button className="mybtn1" onClick={handleWithdrawStable}>
-                      Withdrawal Stable Coin
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* {userId > 0 && (
-            <div
-              id="upgradeSectionHiding"
-              className="col-lg-6 mt-4 hideshowSection"
-            >
+          {/* {currentUserId} */}
+          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
+            <div className="col-lg-6 mt-4">
               <div className="swap-wrap p-5">
-                <div className="swap-head text-center">Upgrade Level</div>
-                <div className="swap">
+                <div className="swap-head text-center">Registration</div>
+                <div className="swap mt-4">
                   <div className="swap-box">
                     <div className="node">
-                      <p className="node-title">Level</p>
+                      <p className="node-title">Sponsor ID</p>
                       <input
-                        id="upgradeLevelIn"
                         className="input-node bg-dashboard form-control ps-2"
-                        value={upgradeLevelValue}
-                        onChange={(e) => setUpgradeLevelValue(e.target.value)}
-                        placeholder="round number"
-                        type="text"
+                        defaultValue="0"
+                        placeholder="Referral Id"
+                        type="number"
+                        id="referralIdInput"
                       />
                     </div>
-                    <div className="pay text-center mt-5">
-                      <button className="mybtn1" onClick={upgradeLevel}>
-                        Upgrade Level
+                    <div className="node">
+                      <p className="node-title">Amount</p>
+                      <input
+                        className="input-node bg-dashboard form-control ps-2"
+                        defaultValue="0"
+                        placeholder="Registration Amount"
+                        type="number"
+                        id="regAmountInput"
+                      />
+                    </div>
+                    <div className="pay text-center mt-4">
+                      <button className="mybtn1" onClick={handlePayNowClick}>
+                        Pay Now
                       </button>
                     </div>
                   </div>
@@ -918,35 +1007,176 @@ const Dashboard = () => {
               </div>
             </div>
           )}
-          {partnerId > 0 && (
-            <div id="onlyForPartner" className="col-lg-6 mt-4">
+          {/* {console.log("Users Id is :", users[0].value)} */}
+          {(users.length > 0 ? Number(users[0].value) : 0) > 0 && (
+            <div id="onlyExamQualifier1" className="col-lg-6 mt-4">
               <div className="swap-wrap p-5">
-                <div className="swap-head text-center">
-                  Upgrade Partner Level
+                <div className="swap-head text-center">Withdraw ROI</div>
+                <div className="pay text-center mt-5">
+                  <button className="mybtn1" onClick={handleWithdrawROI}>
+                    Withdraw ROI
+                  </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* )} */}
+        </div>
+
+        <div className="row px-5">
+          {/*Close Round*/}
+          {isOwner && (
+            <div id="onlyForPartner1" className="col-lg-6 mt-6">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">Close Round</div>
                 <div className="swap">
                   <div className="swap-box">
                     <div className="node">
-                      <p className="node-title">Level</p>
+                      <p className="node-title">Close Round Percentage</p>
                       <input
-                        id="upgradePartnerLevel"
+                        id="closeRoundPercent"
                         className="input-node bg-dashboard form-control ps-2"
-                        placeholder="Level"
-                        value={level}
-                        onChange={(e) => setLevel(e.target.value)}
+                        placeholder="Percentage"
                         type="text"
                       />
                     </div>
                     <div className="pay text-center mt-5">
-                      <button className="mybtn1" onClick={UpgradePartnerLevel}>
-                        Upgrade Partner Level
+                      <button
+                        className="mybtn1"
+                        onClick={handleCloseRoundPercent}
+                      >
+                        Close Round
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          )} */}
+          )}
+          {/* Withdraw ROI */}
+          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
+            <div id="onlyExamQualifier1" className="col-lg-6 mt-4">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">Withdraw ROI</div>
+                <div className="pay text-center mt-5">
+                  <button className="mybtn1" onClick={handleWithdrawROI}>
+                    Withdraw ROI
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* {(users.length > 0 ? Number(users[0].value) : 0) > 0 && ( */}
+          <div id="onlyExamQualifier1" className="col-lg-6 mt-4">
+            <div className="swap-wrap p-5">
+              <div className="swap-head text-center">Withdraw Principal</div>
+              <div className="pay text-center mt-5">
+                <button className="mybtn1" onClick={handleWithdrawPrincipal}>
+                  Withdraw Principal
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* )} */}
+          {/* depositProfit (0x33c19ab0)*/}
+          {isOwner && (
+            <div id="onlyForPartner1" className="col-lg-6 mt-6">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">Deposit Profit</div>
+                <div className="swap">
+                  <div className="swap-box">
+                    <div className="node">
+                      <p className="node-title">Deposit Profit Amount</p>
+                      <input
+                        id="depositProfitInput"
+                        className="input-node bg-dashboard form-control ps-2"
+                        placeholder="Amount"
+                        type="text"
+                      />
+                    </div>
+                    <div className="pay text-center mt-5">
+                      <button className="mybtn1" onClick={handleDepositProfit}>
+                        Deposit Profit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* setRoundCloserAddress (0x29b51cff)*/}
+          {isOwner && (
+            <div id="onlyForPartner1" className="col-lg-6 mt-6">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">
+                  Set Round Closer Address
+                </div>
+                <div className="swap">
+                  <div className="swap-box">
+                    <div className="node">
+                      <p className="node-title">Round Closer Address </p>
+                      <input
+                        id="roundCloserAddressInput"
+                        className="input-node bg-dashboard form-control ps-2"
+                        placeholder="Address"
+                        type="text"
+                      />
+                    </div>
+                    <div className="pay text-center mt-5">
+                      <button
+                        className="mybtn1"
+                        onClick={handleRoundCloserAddress}
+                      >
+                        Round Closer Address
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* withdrawalStableCoin (0x4f3283fe) */}
+          {isOwner && (
+            <div className="col-lg-6 mt-4">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">
+                  Withdrawal Stable Coin
+                </div>
+                <div className="swap mt-4">
+                  <div className="swap-box">
+                    <div className="node">
+                      <p className="node-title">To Address</p>
+                      <input
+                        className="input-node bg-dashboard form-control ps-2"
+                        // defaultValue="0"
+                        placeholder="Address"
+                        type="string"
+                        id="toAddressInput"
+                      />
+                    </div>
+                    <div className="node">
+                      <p className="node-title">Amount</p>
+                      <input
+                        className="input-node bg-dashboard form-control ps-2"
+                        // defaultValue="0"
+                        placeholder="Withdraw Amount"
+                        type="number"
+                        id="stableAmountInput"
+                      />
+                    </div>
+                    <div className="pay text-center mt-4">
+                      <button className="mybtn1" onClick={handleWithdrawStable}>
+                        Withdrawal Stable Coin
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

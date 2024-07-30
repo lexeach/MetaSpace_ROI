@@ -98,6 +98,8 @@
   overflow: auto;
   font-family: "Rubik", sans-serif;
   height: 300px;
+  overflow-y: auto; /* Allows scrolling if content overflows */
+  max-height: 400px; /* Set a maximum height for the box */
 }
 @media (max-width: 667px) {
   .dashboard .user-box {
@@ -193,14 +195,18 @@
 .dashboard .swap-wrap {
   box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
   border-right: 1px solid #f672a7;
-  border-left: 1px solid #f672a7;
+  border-left: 1px solid rgb(246, 114, 167);
   border-radius: 1rem;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto; /* Allows scrolling if content overflows */
 }
 .dashboard .swap-wrap .swap-head {
   font-family: "Rubik", sans-serif;
   /* font-weight: 300; */
   font-size: 30px;
-  color: #5cb30a;
+  color: #f672a7;
+  /* color:  #5cb30a; */
 }
 .dashboard .swap-wrap .swap-head1 {
   font-family: "Rubik", sans-serif;
@@ -226,8 +232,12 @@
   font-family: "Rubik", sans-serif;
   font-weight: 300;
   margin: 0 0 0 5px;
+  display: flex;
+  align-items: center;
+  
 }
 .dashboard .swap-wrap .swap .swap-box .node .input-node {
+
   height: 70px;
   border: 0px;
   color: #f672a7;
@@ -237,12 +247,15 @@
   box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
   border-right: 1px solid #f672a7;
   border-left: 1px solid #f672a7;
+  width: 100%;
+  flex-grow: 1;
 }
 .dashboard .swap-wrap .swap .swap-box .pay .node-title {
   color: #5cb30a;
   font-family: "Rubik", sans-serif;
   font-weight: 300;
   margin: 0 0 0 0px;
+  margin-right: 10px;
 }
 .dashboard .swap-wrap .swap .swap-box .pay .input-node {
   height: 80px;
@@ -255,6 +268,7 @@
   box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
   border-right: 1px solid #f672a7;
   border-left: 1px solid #f672a7;
+  flex-grow: 1;
 }
 
 .bar {
@@ -437,19 +451,19 @@ padding-bottom: 0px;
   color: white;
 }
 
-.loader {
+/* .loader {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #3498db;
   border-radius: 50%;
   width: 40px;
   height: 40px;
   animation: spin 1s linear infinite;
-}
+} */
 
-@keyframes spin {
+/* @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
+} */
 
 .loading-text {
   margin-top: 10px;
@@ -469,6 +483,8 @@ padding-bottom: 0px;
   background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%);
   color: #FFF;
   box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+  /* width: 100%;
+  margin-left: 10px; */
 }
 .mybtn1:hover {
   color: #82ffc9;
@@ -521,3 +537,89 @@ padding-bottom: 0px;
   transform: translateX(5em);
 }
 
+
+.result-box {
+  border-right: 1px solid #f672a7;
+  border-left: 1px solid #f672a7;
+  padding: 1.5rem;
+  letter-spacing: 0.06em;
+  border-radius: 1rem;
+  transition: all 0.3s;
+  color: #5cb30a;
+  font-family: "Rubik", sans-serif;
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+  overflow: auto;
+  font-family: "Rubik", sans-serif;
+  height: 500;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.result-item {
+  display: flex;
+  border-bottom: 0.01px dotted #0ab39c;
+  margin-top: 5px;
+}
+
+.result-title {
+  color: #5cb30a;
+  font-size: 30px;
+  font-family: "Rubik", sans-serif;
+  font-weight: 150;
+}
+
+.result-value {
+  color: #5cb30a;
+  font-size: 30px;
+  font-family: "Rubik", sans-serif;
+  font-weight: 300;
+  padding-left: 15px;
+}
+
+.dashboard .swap-wrap .swap-head1 {
+  font-family: "Rubik", sans-serif;
+  /* font-weight: 300; */
+  font-size: 30px;
+  color: #5cb30a;
+  margin-bottom: 20px;
+  padding-bottom: 50px;
+}
+
+.mybtn2 {
+  font-size: 18px;
+  padding: 0.7em 2.7em;
+  letter-spacing: 0.06em;
+  position: relative;
+  font-family: inherit;
+  border-radius: 0.6em;
+  overflow: hidden;
+  transition: all 0.3s;
+  line-height: 1.4em;
+  border: 1px solid #FFF;
+  background: linear-gradient(to right, rgba(27, 253, 156, 0.1) 1%, transparent 40%, transparent 60%, rgba(27, 253, 156, 0.1) 100%);
+  color: #FFF;
+  box-shadow: inset 0 0 10px rgba(27, 253, 156, 0.4), 0 0 9px 3px rgba(27, 253, 156, 0.1);
+  /* width: 100%; */
+  margin-left: 20px;
+}
+
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+  position: fixed; /* Make sure loader stays in place */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999; /* Ensure it stays on top */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

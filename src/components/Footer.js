@@ -16,41 +16,24 @@ const Footer = () => (
           <ul className="list-unstyled">
             <li>
               <a
-                href="https://KBCfoundation.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Website
-              </a>
-            </li>
-            <li>
-              <a
                 href="https://scan.KBCfoundation.com/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Explorer
+                Swap MSC
               </a>
             </li>
-            <li>
+            {/* <li>
               <a href="https://scan.KBCfoundation.com/">DEX</a>
             </li>
             <li>
               <a href="#">Bridge</a>
-            </li>
+            </li> */}
           </ul>
         </div>
         <div className="col-md-4">
           <h5>Contact Us</h5>
-          <address>
-            123 Street Name
-            <br />
-            City, Country
-            <br />
-            Phone: 123-456-7890
-            <br />
-            Email: example@example.com
-          </address>
+          <a href="https:telegram.com">Telegram</a>
         </div>
       </div>
     </div>
