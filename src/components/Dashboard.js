@@ -757,7 +757,7 @@ const Dashboard = () => {
                       ).toFixed(4)
                     : 0}{" "}
                 </p>
-                <p className="cards-title">Your Staked Time</p>
+                <p className="cards-title">Your Staked</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
