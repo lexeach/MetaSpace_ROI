@@ -1,4 +1,4 @@
-const contractAddress = "0xa14B2933380977F95a1EdFCFc70802B11C8792af"; // Replace with your deployed contract address
+const contractAddress = "0x7aEb6d82C901241378a00B9c045BEd796A7852CC"; // Replace with your deployed contract address
 const examAddress = "0x75221506B9FC53fDdF3e516017926cbA6b5B3fd6";
 const stableCoinAddress = "0x0EB11261F9F778fEfd688e2dfAdB77862E96605b";
 
@@ -165,15 +165,9 @@ const abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "_referrer",
-        type: "address",
-      },
-      {
         indexed: false,
         internalType: "uint256",
-        name: "_amount",
+        name: "_star",
         type: "uint256",
       },
     ],
@@ -327,6 +321,28 @@ const abi = [
     type: "function",
   },
   {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "levelsTO",
+    outputs: [
+      { internalType: "uint256", name: "one", type: "uint256" },
+      { internalType: "uint256", name: "two", type: "uint256" },
+      { internalType: "uint256", name: "three", type: "uint256" },
+      { internalType: "uint256", name: "four", type: "uint256" },
+      { internalType: "uint256", name: "five", type: "uint256" },
+      { internalType: "uint256", name: "six", type: "uint256" },
+      { internalType: "uint256", name: "seven", type: "uint256" },
+      { internalType: "uint256", name: "eight", type: "uint256" },
+      { internalType: "uint256", name: "nine", type: "uint256" },
+      { internalType: "uint256", name: "ten", type: "uint256" },
+      { internalType: "uint256", name: "eleven", type: "uint256" },
+      { internalType: "uint256", name: "twelve", type: "uint256" },
+      { internalType: "uint256", name: "thirteen", type: "uint256" },
+      { internalType: "uint256", name: "forteen", type: "uint256" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "nextRoundTotal",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -337,6 +353,18 @@ const abi = [
     inputs: [],
     name: "ownerWallet",
     outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "ranks",
+    outputs: [
+      { internalType: "bool", name: "royalityOnePaid", type: "bool" },
+      { internalType: "bool", name: "royalityTwoPaid", type: "bool" },
+      { internalType: "bool", name: "royalityThreePaid", type: "bool" },
+      { internalType: "bool", name: "royalityFourPaid", type: "bool" },
+    ],
     stateMutability: "view",
     type: "function",
   },
@@ -353,7 +381,10 @@ const abi = [
       { internalType: "address", name: "", type: "address" },
     ],
     name: "rewards",
-    outputs: [{ internalType: "bool", name: "taken", type: "bool" }],
+    outputs: [
+      { internalType: "bool", name: "taken", type: "bool" },
+      { internalType: "bool", name: "achieved", type: "bool" },
+    ],
     stateMutability: "view",
     type: "function",
   },
@@ -422,7 +453,21 @@ const abi = [
   },
   {
     inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "takenReward",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
     name: "takenRound",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "takenRoyality",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
@@ -436,8 +481,22 @@ const abi = [
   },
   {
     inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    name: "totalDepositOnRound",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     name: "userList",
     outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "userTurnOver",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -474,9 +533,30 @@ const abi = [
     type: "function",
   },
   {
+    inputs: [{ internalType: "uint256", name: "_star", type: "uint256" }],
+    name: "withdrawReward",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "_royality", type: "uint256" }],
+    name: "withdrawRoyality",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "address", name: "_address", type: "address" }],
     name: "withdrawableROI",
     outputs: [{ internalType: "uint256", name: "reward", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "_address", type: "address" }],
+    name: "withdrawableRoyality",
+    outputs: [{ internalType: "uint256", name: "_star", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },

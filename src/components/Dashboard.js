@@ -42,6 +42,13 @@ const Dashboard = () => {
   const [searchRound, setSearchRound] = useState(1);
   const [roundProfitData, setRoundProfitData] = useState(null);
   const [userProfitData, setUserProfitData] = useState(null);
+  const [levelTo, setLevelTo] = useState([]);
+  const [royaltyInfo, setRoyaltyInfo] = useState([]);
+
+  const [takenReward, setTakenReward] = useState();
+  const [takenRoyality, setTakenRoyality] = useState();
+  const [userTurnOver, setUserTurnOver] = useState();
+  const [withdrawableRoyality, setWithdrawableRoyality] = useState();
 
   const [isExamQualifier, setIsExamQualifier] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -236,6 +243,26 @@ const Dashboard = () => {
           .withdrawableROI(connectedAddress)
           .call({ from: connectedAddress });
         setWithdrawableROI(withdrawableROI);
+
+        let takenReward = await contractInstance.methods
+          .takenReward(connectedAddress)
+          .call({ from: connectedAddress });
+        setTakenReward(takenReward);
+
+        let takenRoyality = await contractInstance.methods
+          .takenRoyality(connectedAddress)
+          .call({ from: connectedAddress });
+        setTakenRoyality(takenRoyality);
+
+        let userTurnOver = await contractInstance.methods
+          .userTurnOver(connectedAddress)
+          .call({ from: connectedAddress });
+        setUserTurnOver(userTurnOver);
+
+        let withdrawableRoyality = await contractInstance.methods
+          .withdrawableRoyality(connectedAddress)
+          .call({ from: connectedAddress });
+        setWithdrawableRoyality(withdrawableRoyality);
       }
     };
     fetchUserData();
@@ -394,25 +421,126 @@ const Dashboard = () => {
     const rewardInfos = async () => {
       if (contractInstance && connectedAddress) {
         const rewardIn = [
-          { level: 1, status: "NO" },
-          { level: 2, status: "NO" },
-          { level: 3, status: "NO" },
-          { level: 4, status: "NO" },
-          { level: 5, status: "NO" },
-          { level: 6, status: "NO" },
-          { level: 7, status: "NO" },
+          { level: 1, status: "NO", achieved: "NO" },
+          { level: 2, status: "NO", achieved: "NO" },
+          { level: 3, status: "NO", achieved: "NO" },
+          { level: 4, status: "NO", achieved: "NO" },
+          { level: 5, status: "NO", achieved: "NO" },
+          { level: 6, status: "NO", achieved: "NO" },
+          { level: 7, status: "NO", achieved: "NO" },
         ];
         for (let i = 0; i < 7; i++) {
           let rewards = await contractInstance.methods
             .rewards(i + 1, connectedAddress)
             .call({ from: connectedAddress });
-          rewardIn[i].status = rewards ? "YES" : "NO";
+          rewardIn[i].status = rewards.taken ? "YES" : "NO";
+          rewardIn[i].achieved = rewards.achieved ? "YES" : "NO";
         }
         setRewardInfo(rewardIn);
       }
     };
     rewardInfos();
   }, [contractInstance, connectedAddress]);
+  // Level TO Info
+  useEffect(() => {
+    const toInfo = async () => {
+      if (contractInstance && connectedAddress) {
+        let levelsTO = await contractInstance.methods
+          .levelsTO(connectedAddress)
+          .call({ from: connectedAddress });
+        const rewardIn = [
+          { level: 1, lto: levelsTO.one ? levelsTO.one : 0 },
+          { level: 2, lto: levelsTO.two ? levelsTO.two : 0 },
+          { level: 3, lto: levelsTO.three ? levelsTO.three : 0 },
+          { level: 4, lto: levelsTO.four ? levelsTO.four : 0 },
+          { level: 5, lto: levelsTO.five ? levelsTO.five : 0 },
+          { level: 6, lto: levelsTO.six ? levelsTO.six : 0 },
+          { level: 7, lto: levelsTO.seven ? levelsTO.seven : 0 },
+          { level: 8, lto: levelsTO.eight ? levelsTO.eight : 0 },
+          { level: 9, lto: levelsTO.nine ? levelsTO.nine : 0 },
+          { level: 10, lto: levelsTO.ten ? levelsTO.ten : 0 },
+          { level: 11, lto: levelsTO.eleven ? levelsTO.eleven : 0 },
+          { level: 12, lto: levelsTO.twelve ? levelsTO.twelve : 0 },
+          { level: 13, lto: levelsTO.thirteen ? levelsTO.thirteen : 0 },
+          { level: 14, lto: levelsTO.forteen ? levelsTO.forteen : 0 },
+        ];
+        setLevelTo(rewardIn);
+      }
+    };
+    toInfo();
+  }, [contractInstance, connectedAddress]);
+  // Royalty Info
+  useEffect(() => {
+    const royaltyInfo = async () => {
+      if (contractInstance && connectedAddress) {
+        let ranks = await contractInstance.methods
+          .ranks(connectedAddress)
+          .call({ from: connectedAddress });
+        const rewardIn = [
+          {
+            level: "Royality OnePaid",
+            status: ranks.royalityOnePaid ? "YES" : "NO",
+          },
+          {
+            level: "Royality TwoPaid",
+            status: ranks.royalityTwoPaid ? "YES" : "NO",
+          },
+          {
+            level: "Royality ThreePaid",
+            status: ranks.royalityThreePaid ? "YES" : "NO",
+          },
+          {
+            level: "Royality FourPaid",
+            status: ranks.royalityFourPaid ? "YES" : "NO",
+          },
+        ];
+        // for (let i = 0; i < 7; i++) {
+        // let ranks = await contractInstance.methods
+        //   .ranks( connectedAddress)
+        //   .call({ from: connectedAddress });
+        // rewardIn[i].status = rewards ? "YES" : ? "YES" : "NO";
+        // }
+        setRoyaltyInfo(rewardIn);
+      }
+    };
+    royaltyInfo();
+  }, [contractInstance, connectedAddress]);
+  // Handle Royality withdraw
+  const handleRoyalityWithdraw = async () => {
+    let royalityWith = document.getElementById("royalityWithdraw").value;
+    try {
+      await contractInstance.methods
+        .withdrawRoyality(royalityWith)
+        .send({ from: connectedAddress })
+        .on("error", function (error) {
+          console.log("Contract error: ", error);
+          alert("Error On Star Withdraw Royality:", error);
+          setIsLoading(false); // Stop loading on error
+        })
+        .on("receipt", async function (receipt) {
+          alert("Withdraw Royality Successfully");
+          setIsLoading(false); // Stop loading on error
+        });
+    } catch (e) {}
+  };
+
+  const handleWithdrawReward = async () => {
+    let starWithdraw = document.getElementById("starWithdrawReward").value;
+    try {
+      await contractInstance.methods
+        .withdrawReward(starWithdraw)
+        .send({ from: connectedAddress })
+        .on("error", function (error) {
+          console.log("Contract error: ", error);
+          alert("Error On Star Withdraw Reward:", error);
+          setIsLoading(false); // Stop loading on error
+        })
+        .on("receipt", async function (receipt) {
+          alert("Withdraw Reward Successfully");
+          setIsLoading(false); // Stop loading on error
+        });
+    } catch (e) {}
+  };
 
   const handlePayNowClick = async () => {
     let referrerId = document.getElementById("referralIdInput").value;
@@ -782,6 +910,63 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Fourth Row */}
+        <div className="head-card skew mx-5 mt-4">
+          <div className="row">
+            <div className="col-lg-3 col-sm-6">
+              <div className="box">
+                <p id="partnerCount1" className="cards-numbers">
+                  {takenReward
+                    ? parseFloat(
+                        Web3.utils.fromWei(takenReward, "ether")
+                      ).toFixed(4)
+                    : "0.0000"}{" "}
+                </p>
+                <p className="cards-title">Taken Reward</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6">
+              <div className="box">
+                <p id="partnerCount1" className="cards-numbers">
+                  {takenRoyality
+                    ? parseFloat(
+                        Web3.utils.fromWei(takenRoyality, "ether")
+                      ).toFixed(4)
+                    : 0}{" "}
+                </p>
+                <p className="cards-title">Taken Royality</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6">
+              <div className="box">
+                <p id="totalReward" className="cards-numbers">
+                  <p id="partnerCount1" className="cards-numbers">
+                    {userTurnOver
+                      ? parseFloat(
+                          Web3.utils.fromWei(userTurnOver, "ether")
+                        ).toFixed(4)
+                      : 0}{" "}
+                  </p>
+                  <span className="sub-number"></span>
+                </p>
+                <p className="cards-title">User TurnOver</p>
+              </div>
+            </div>
+            <div className="col-lg-3 col-sm-6">
+              <div className="box">
+                <p id="partnerID1" className="cards-numbers">
+                  {withdrawableRoyality
+                    ? parseFloat(
+                        Web3.utils.fromWei(withdrawableRoyality, "ether")
+                      ).toFixed(4)
+                    : 0}{" "}
+                </p>
+                <p className="cards-title">Withdrawable Royality</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="row px-5">
           <div className="col-lg-6">
             <div className="d-flex justify-content-center mt-4">
@@ -854,13 +1039,15 @@ const Dashboard = () => {
             </div>
             <div className="user-box">
               <div className="user-item">
-                <div className="col-6 user-title">Reward Level</div>
-                <div className="col-6 user-value">Status</div>
+                <div className="col-4 user-title">Reward Level</div>
+                <div className="col-4 user-value">Status</div>
+                <div className="col-4 user-value">Achieved</div>
               </div>
-              {rewardInfo.map(({ level, status }) => (
+              {rewardInfo.map(({ level, status, achieved }) => (
                 <div className="user-item" key={level}>
-                  <div className="col-6 user-title">Level {level}</div>
-                  <div className="col-6 user-value">{status}</div>
+                  <div className="col-4 user-title">Level {level}</div>
+                  <div className="col-4 user-value">{status}</div>
+                  <div className="col-4 user-value">{achieved}</div>
                 </div>
               ))}
             </div>
@@ -915,12 +1102,54 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Copy of Reward Info: */}
+        <div className="row px-5">
+          <div className="col-lg-6">
+            <div className="d-flex justify-content-center mt-4">
+              <div className="network-heading text-center rounded-top-2">
+                Turn Over Info
+              </div>
+            </div>
+            <div className="user-box">
+              <div className="user-item">
+                <div className="col-6 user-title"> Level</div>
+                <div className="col-6 user-value">TO</div>
+              </div>
+              {levelTo.map(({ level, lto }) => (
+                <div className="user-item" key={level}>
+                  <div className="col-6 user-title">Level {level}</div>
+                  <div className="col-6 user-value">{lto}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="col-lg-6">
+            <div className="d-flex justify-content-center mt-4">
+              <div className="network-heading text-center rounded-top-2">
+                Royality Info
+              </div>
+            </div>
+            <div className="user-box">
+              {/* <div className="user-item">
+                <div className="col-6 user-title"> Level</div>
+                <div className="col-6 user-value">TO</div>
+              </div> */}
+              {royaltyInfo.map(({ level, status }) => (
+                <div className="user-item" key={level}>
+                  <div className="col-6 user-title">Level {level}</div>
+                  <div className="col-6 user-value">{status}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* </div> */}
         <div className="row px-2">
           <div className="col-lg-6">
             <div className="d-flex justify-content-center ">
               <div className="network-heading text-center rounded-top-2">
-                USERS Data
+                Users Data
               </div>
             </div>
             <div className="user-box">
@@ -1062,6 +1291,63 @@ const Dashboard = () => {
                     <div className="pay text-center mt-5">
                       <button className="mybtn1" onClick={handleDepositProfit}>
                         Deposit Profit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* {Withdraw Reward} */}
+          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
+            <div className="col-lg-6 mt-4">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">Withdraw Reward</div>
+                <div className="swap mt-4">
+                  <div className="swap-box">
+                    <div className="node">
+                      <p className="node-title">Star</p>
+                      <input
+                        className="input-node bg-dashboard form-control ps-2"
+                        defaultValue="0"
+                        placeholder="Star Reward"
+                        type="number"
+                        id="starWithdrawReward"
+                      />
+                    </div>
+                    <div className="pay text-center mt-4">
+                      <button className="mybtn1" onClick={handleWithdrawReward}>
+                        Withdraw Star
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Withdraw Royality */}
+          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
+            <div className="col-lg-6 mt-4">
+              <div className="swap-wrap p-5">
+                <div className="swap-head text-center">Withdraw Royality</div>
+                <div className="swap mt-4">
+                  <div className="swap-box">
+                    <div className="node">
+                      <p className="node-title">Royality</p>
+                      <input
+                        className="input-node bg-dashboard form-control ps-2"
+                        defaultValue="0"
+                        placeholder="Royality"
+                        type="number"
+                        id="royalityWithdraw"
+                      />
+                    </div>
+                    <div className="pay text-center mt-4">
+                      <button
+                        className="mybtn1"
+                        onClick={handleRoyalityWithdraw}
+                      >
+                        Royality Withdraw
                       </button>
                     </div>
                   </div>
