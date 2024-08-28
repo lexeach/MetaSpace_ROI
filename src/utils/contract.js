@@ -1,4 +1,4 @@
-const contractAddress = "0x7aEb6d82C901241378a00B9c045BEd796A7852CC"; // Replace with your deployed contract address
+const contractAddress = "0x621592E6B5a072d9c637d992EDced11fe75A9fA0"; // Replace with your deployed contract address
 const examAddress = "0x75221506B9FC53fDdF3e516017926cbA6b5B3fd6";
 const stableCoinAddress = "0x0EB11261F9F778fEfd688e2dfAdB77862E96605b";
 
@@ -555,7 +555,21 @@ const abi = [
   },
   {
     inputs: [{ internalType: "address", name: "_address", type: "address" }],
+    name: "withdrawableReward",
+    outputs: [{ internalType: "uint256", name: "_star", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "_address", type: "address" }],
     name: "withdrawableRoyality",
+    outputs: [{ internalType: "uint256", name: "_star", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "_address", type: "address" }],
+    name: "withdrawableRoyality2",
     outputs: [{ internalType: "uint256", name: "_star", type: "uint256" }],
     stateMutability: "view",
     type: "function",

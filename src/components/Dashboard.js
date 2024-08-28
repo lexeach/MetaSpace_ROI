@@ -57,7 +57,7 @@ const Dashboard = () => {
     const storedAddress = localStorage.getItem("connectedAddress");
     if (storedAddress) {
       setConnectedAddress(storedAddress);
-      // setConnectedAddress("0xb8D4217B314192857a2Ba34F413008F4EAdfd0f0");
+      // setConnectedAddress("0x2435D7cc2a2dAb8e11E5d112324AA201Ad6EccF6");
 
       setIsConnected(true);
     }
@@ -88,7 +88,7 @@ const Dashboard = () => {
       });
       if (accounts.length > 0) {
         let account = accounts[0];
-        // account = "0xb8D4217B314192857a2Ba34F413008F4EAdfd0f0";
+        // account = "0x2435D7cc2a2dAb8e11E5d112324AA201Ad6EccF6";
         localStorage.setItem("connectedAddress", account);
         setConnectedAddress(account);
         setIsConnected(true);
@@ -260,7 +260,7 @@ const Dashboard = () => {
         setUserTurnOver(userTurnOver);
 
         let withdrawableRoyality = await contractInstance.methods
-          .withdrawableRoyality(connectedAddress)
+          .withdrawableRoyality2(connectedAddress)
           .call({ from: connectedAddress });
         setWithdrawableRoyality(withdrawableRoyality);
       }
@@ -343,6 +343,7 @@ const Dashboard = () => {
         let levelsRoi1 = await contractInstance.methods
           .levelsRoi(connectedAddress)
           .call({ from: connectedAddress });
+        // console.log("Level ROI: ", levelsRoi1);
 
         const levelsRoi = [
           { level: 1, income: levelsRoi1.one },
@@ -361,8 +362,17 @@ const Dashboard = () => {
           { level: 14, income: levelsRoi1.forteen },
         ];
         setLevelsRoi(levelsRoi);
+        let withdrawableROI1 = await contractInstance.methods
+          .withdrawableROI(connectedAddress) //connectedAddress
+          .call({ from: connectedAddress });
         let users1 = await contractInstance.methods
           .users(connectedAddress) //connectedAddress
+          .call({ from: connectedAddress });
+        let withdrawableReward = await contractInstance.methods
+          .withdrawableReward(connectedAddress) //connectedAddress
+          .call({ from: connectedAddress });
+        let withdrawableRoyality2 = await contractInstance.methods
+          .withdrawableRoyality2(connectedAddress) //connectedAddress
           .call({ from: connectedAddress });
         const userList = [
           { title: "User ID", value: Number(users1.id) },
@@ -374,24 +384,24 @@ const Dashboard = () => {
               users1.income > 0
                 ? parseFloat(
                     Web3.utils.fromWei(users1.income, "ether")
-                  ).toFixed(4)
-                : "0.0000",
+                  ).toFixed(2) + " ZFT"
+                : "0.00 ZFT",
           },
           {
             title: "Level Income Received",
             value: users1.levelIncomeReceived
               ? parseFloat(
                   Web3.utils.fromWei(users1.levelIncomeReceived, "ether")
-                ).toFixed(4)
-              : "0.0000",
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
           },
           {
             title: "Taken ROI",
             value: users1.takenROI
               ? parseFloat(
                   Web3.utils.fromWei(users1.takenROI, "ether")
-                ).toFixed(4)
-              : "0.0000",
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
           },
           {
             title: "Stake Times",
@@ -402,12 +412,37 @@ const Dashboard = () => {
           },
           { title: "Income Missed", value: users1.incomeMissed },
           {
-            title: "Deposit ",
+            title: "Deposit",
             value: users1.deposit
               ? parseFloat(Web3.utils.fromWei(users1.deposit, "ether")).toFixed(
-                  4
-                )
-              : "0.0000",
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            title: "Withdrawable ROI",
+            value: withdrawableROI1
+              ? parseFloat(
+                  Web3.utils.fromWei(withdrawableROI1, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
+
+          {
+            title: "Withdrawable Reward",
+            value: withdrawableReward
+              ? parseFloat(
+                  Web3.utils.fromWei(withdrawableReward, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            title: "Withdrawable Royality2 ",
+            value: withdrawableRoyality2
+              ? parseFloat(
+                  Web3.utils.fromWei(withdrawableRoyality2, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
           },
         ];
 
@@ -448,21 +483,120 @@ const Dashboard = () => {
         let levelsTO = await contractInstance.methods
           .levelsTO(connectedAddress)
           .call({ from: connectedAddress });
+        // console.log("Level To: ", levelsTO);
         const rewardIn = [
-          { level: 1, lto: levelsTO.one ? levelsTO.one : 0 },
-          { level: 2, lto: levelsTO.two ? levelsTO.two : 0 },
-          { level: 3, lto: levelsTO.three ? levelsTO.three : 0 },
-          { level: 4, lto: levelsTO.four ? levelsTO.four : 0 },
-          { level: 5, lto: levelsTO.five ? levelsTO.five : 0 },
-          { level: 6, lto: levelsTO.six ? levelsTO.six : 0 },
-          { level: 7, lto: levelsTO.seven ? levelsTO.seven : 0 },
-          { level: 8, lto: levelsTO.eight ? levelsTO.eight : 0 },
-          { level: 9, lto: levelsTO.nine ? levelsTO.nine : 0 },
-          { level: 10, lto: levelsTO.ten ? levelsTO.ten : 0 },
-          { level: 11, lto: levelsTO.eleven ? levelsTO.eleven : 0 },
-          { level: 12, lto: levelsTO.twelve ? levelsTO.twelve : 0 },
-          { level: 13, lto: levelsTO.thirteen ? levelsTO.thirteen : 0 },
-          { level: 14, lto: levelsTO.forteen ? levelsTO.forteen : 0 },
+          {
+            level: 1,
+            lto: levelsTO.one
+              ? parseFloat(Web3.utils.fromWei(levelsTO.one, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 2,
+            lto: levelsTO.two
+              ? parseFloat(Web3.utils.fromWei(levelsTO.two, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 3,
+            lto: levelsTO.three
+              ? parseFloat(Web3.utils.fromWei(levelsTO.three, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 4,
+            lto: levelsTO.four
+              ? parseFloat(Web3.utils.fromWei(levelsTO.four, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 5,
+            lto: levelsTO.five
+              ? parseFloat(Web3.utils.fromWei(levelsTO.five, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 6,
+            lto: levelsTO.six
+              ? parseFloat(Web3.utils.fromWei(levelsTO.six, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 7,
+            lto: levelsTO.seven
+              ? parseFloat(Web3.utils.fromWei(levelsTO.seven, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 8,
+            lto: levelsTO.eight
+              ? parseFloat(Web3.utils.fromWei(levelsTO.eight, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 9,
+            lto: levelsTO.nine
+              ? parseFloat(Web3.utils.fromWei(levelsTO.nine, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 10,
+            lto: levelsTO.ten
+              ? parseFloat(Web3.utils.fromWei(levelsTO.ten, "ether")).toFixed(
+                  2
+                ) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 11,
+            lto: levelsTO.eleven
+              ? parseFloat(
+                  Web3.utils.fromWei(levelsTO.eleven, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 12,
+            lto: levelsTO.twelve
+              ? parseFloat(
+                  Web3.utils.fromWei(levelsTO.twelve, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 13,
+            lto: levelsTO.thirteen
+              ? parseFloat(
+                  Web3.utils.fromWei(levelsTO.thirteen, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
+          {
+            level: 14,
+            lto: levelsTO.forteen
+              ? parseFloat(
+                  Web3.utils.fromWei(levelsTO.forteen, "ether")
+                ).toFixed(2) + " ZFT"
+              : "0.00 ZFT",
+          },
         ];
         setLevelTo(rewardIn);
       }
@@ -774,7 +908,7 @@ const Dashboard = () => {
                 <p id="regAmount" className="cards-numbers">
                   {Number(currRound)}
                   {/* {regFee
-                    ? parseFloat(Web3.utils.fromWei(regFee, "ether")).toFixed(4)
+                    ? parseFloat(Web3.utils.fromWei(regFee, "ether")).toFixed(2)  + " ZFT"
                     : 0} */}
                 </p>
                 <p className="cards-title">Current Round</p>
@@ -806,8 +940,8 @@ const Dashboard = () => {
                   {directIncome
                     ? parseFloat(
                         Web3.utils.fromWei(directIncome, "ether")
-                      ).toFixed(4)
-                    : "0.0000"}
+                      ).toFixed(2) + " ZFT"
+                    : "0.00 ZFT"}
                 </p>
                 <p className="cards-title">Direct Income</p>
               </div>
@@ -851,8 +985,8 @@ const Dashboard = () => {
                   {withdrawableROI
                     ? parseFloat(
                         Web3.utils.fromWei(withdrawableROI, "ether")
-                      ).toFixed(4)
-                    : "0.0000"}{" "}
+                      ).toFixed(2) + " ZFT"
+                    : "0.00 ZFT"}{" "}
                   <span className="sub-number"></span>
                 </p>
                 <p className="cards-title">Withdrawable ROI</p>
@@ -869,8 +1003,8 @@ const Dashboard = () => {
                   {totalDeposit
                     ? parseFloat(
                         Web3.utils.fromWei(totalDeposit, "ether")
-                      ).toFixed(4)
-                    : "0.0000"}{" "}
+                      ).toFixed(2) + " ZFT"
+                    : "0.00 ZFT"}{" "}
                 </p>
                 <p className="cards-title">Stake Amount</p>
               </div>
@@ -881,7 +1015,7 @@ const Dashboard = () => {
                   {stakeAmount
                     ? parseFloat(
                         Web3.utils.fromWei(stakeAmount, "ether")
-                      ).toFixed(4)
+                      ).toFixed(2) + " ZFT"
                     : 0}{" "}
                 </p>
                 <p className="cards-title">Register Time</p>
@@ -919,8 +1053,8 @@ const Dashboard = () => {
                   {takenReward
                     ? parseFloat(
                         Web3.utils.fromWei(takenReward, "ether")
-                      ).toFixed(4)
-                    : "0.0000"}{" "}
+                      ).toFixed(2) + " ZFT"
+                    : "0.00 ZFT"}{" "}
                 </p>
                 <p className="cards-title">Taken Reward</p>
               </div>
@@ -931,7 +1065,7 @@ const Dashboard = () => {
                   {takenRoyality
                     ? parseFloat(
                         Web3.utils.fromWei(takenRoyality, "ether")
-                      ).toFixed(4)
+                      ).toFixed(2) + " ZFT"
                     : 0}{" "}
                 </p>
                 <p className="cards-title">Taken Royality</p>
@@ -944,7 +1078,7 @@ const Dashboard = () => {
                     {userTurnOver
                       ? parseFloat(
                           Web3.utils.fromWei(userTurnOver, "ether")
-                        ).toFixed(4)
+                        ).toFixed(2) + " ZFT"
                       : 0}{" "}
                   </p>
                   <span className="sub-number"></span>
@@ -958,8 +1092,8 @@ const Dashboard = () => {
                   {withdrawableRoyality
                     ? parseFloat(
                         Web3.utils.fromWei(withdrawableRoyality, "ether")
-                      ).toFixed(4)
-                    : 0}{" "}
+                      ).toFixed(2) + " ZFT"
+                    : "0.00 ZFT"}{" "}
                 </p>
                 <p className="cards-title">Withdrawable Royality</p>
               </div>
@@ -990,9 +1124,9 @@ const Dashboard = () => {
                     {/* {income ? Number(income) : 0} */}
                     {income
                       ? parseFloat(Web3.utils.fromWei(income, "ether")).toFixed(
-                          4
-                        )
-                      : "0.0000"}
+                          2
+                        ) + " ZFT"
+                      : "0.00 ZFT"}
                   </div>
                   <div className="col-4 user-value">
                     {team ? Number(team) : 0}
@@ -1023,7 +1157,7 @@ const Dashboard = () => {
                       ? parseFloat(Web3.utils.fromWei(income, "ether")).toFixed(
                           4
                         )
-                      : "0.0000"}
+                      : "0.00 ZFT"}
                   </div>
                 </div>
               ))}
@@ -1077,7 +1211,7 @@ const Dashboard = () => {
                       <div id="resultProfit" className="result-value">
                         {Number(roundProfitData) > 0
                           ? Number(roundProfitData)
-                          : "0.0000"}
+                          : "0.00 ZFT"}
                       </div>
                     </div>
                     <div className="result-item">
@@ -1090,9 +1224,9 @@ const Dashboard = () => {
                                   userProfitData.toString(),
                                   "ether"
                                 )
-                              ).toFixed(4)
-                            : "0.0000"
-                          : "0.0000"}
+                              ).toFixed(2) + " ZFT"
+                            : "0.00 ZFT"
+                          : "0.00 ZFT"}
                       </div>
                     </div>
                   </div>
@@ -1130,10 +1264,6 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="user-box">
-              {/* <div className="user-item">
-                <div className="col-6 user-title"> Level</div>
-                <div className="col-6 user-value">TO</div>
-              </div> */}
               {royaltyInfo.map(({ level, status }) => (
                 <div className="user-item" key={level}>
                   <div className="col-6 user-title">Level {level}</div>
@@ -1299,62 +1429,59 @@ const Dashboard = () => {
             </div>
           )}
           {/* {Withdraw Reward} */}
-          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
-            <div className="col-lg-6 mt-4">
-              <div className="swap-wrap p-5">
-                <div className="swap-head text-center">Withdraw Reward</div>
-                <div className="swap mt-4">
-                  <div className="swap-box">
-                    <div className="node">
-                      <p className="node-title">Star</p>
-                      <input
-                        className="input-node bg-dashboard form-control ps-2"
-                        defaultValue="0"
-                        placeholder="Star Reward"
-                        type="number"
-                        id="starWithdrawReward"
-                      />
-                    </div>
-                    <div className="pay text-center mt-4">
-                      <button className="mybtn1" onClick={handleWithdrawReward}>
-                        Withdraw Star
-                      </button>
-                    </div>
+          {/* {(users.length > 0 ? Number(users[0].value) : 0) == 0 && ( */}
+          <div className="col-lg-6 mt-4">
+            <div className="swap-wrap p-5">
+              <div className="swap-head text-center">Withdraw Reward</div>
+              <div className="swap mt-4">
+                <div className="swap-box">
+                  <div className="node">
+                    <p className="node-title">Star</p>
+                    <input
+                      className="input-node bg-dashboard form-control ps-2"
+                      defaultValue="0"
+                      placeholder="Star Reward"
+                      type="number"
+                      id="starWithdrawReward"
+                    />
+                  </div>
+                  <div className="pay text-center mt-4">
+                    <button className="mybtn1" onClick={handleWithdrawReward}>
+                      Withdraw Star
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+          {/* )} */}
           {/* Withdraw Royality */}
-          {(users.length > 0 ? Number(users[0].value) : 0) == 0 && (
-            <div className="col-lg-6 mt-4">
-              <div className="swap-wrap p-5">
-                <div className="swap-head text-center">Withdraw Royality</div>
-                <div className="swap mt-4">
-                  <div className="swap-box">
-                    <div className="node">
-                      <p className="node-title">Royality</p>
-                      <input
-                        className="input-node bg-dashboard form-control ps-2"
-                        defaultValue="0"
-                        placeholder="Royality"
-                        type="number"
-                        id="royalityWithdraw"
-                      />
-                    </div>
-                    <div className="pay text-center mt-4">
-                      <button
-                        className="mybtn1"
-                        onClick={handleRoyalityWithdraw}
-                      >
-                        Royality Withdraw
-                      </button>
-                    </div>
+          {/* {(users.length > 0 ? Number(users[0].value) : 0) == 0 && ( */}
+          <div className="col-lg-6 mt-4">
+            <div className="swap-wrap p-5">
+              <div className="swap-head text-center">Withdraw Royality</div>
+              <div className="swap mt-4">
+                <div className="swap-box">
+                  <div className="node">
+                    <p className="node-title">Royality</p>
+                    <input
+                      className="input-node bg-dashboard form-control ps-2"
+                      defaultValue="0"
+                      placeholder="Royality"
+                      type="number"
+                      id="royalityWithdraw"
+                    />
+                  </div>
+                  <div className="pay text-center mt-4">
+                    <button className="mybtn1" onClick={handleRoyalityWithdraw}>
+                      Royality Withdraw
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
+          {/* )} */}
 
           {/* setRoundCloserAddress (0x29b51cff)*/}
           {isOwner && (
