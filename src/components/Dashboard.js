@@ -8,6 +8,8 @@ import {
   examABI,
   stableCoinAddress,
   stableCoinABI,
+  tokenPriceAddress,
+  tokenPriceABI,
 } from "./../utils/contract"; // Import from contract.js
 
 const Dashboard = () => {
@@ -17,6 +19,7 @@ const Dashboard = () => {
   const [contractInstance, setContractInstance] = useState(null);
   const [examInstance, setExamInstance] = useState(null);
   const [stableCoinInstance, setStableCoinInstance] = useState(null);
+  const [tokenPriceInstance, setTokenPriceInstance] = useState(null);
 
   const [currRound, setCurrRound] = useState();
   const [currRoundStartTime, setCurrRoundStartTime] = useState();
@@ -49,6 +52,8 @@ const Dashboard = () => {
   const [takenRoyality, setTakenRoyality] = useState();
   const [userTurnOver, setUserTurnOver] = useState();
   const [withdrawableRoyality, setWithdrawableRoyality] = useState();
+
+  const [tokenPrice, setTokenPrice] = useState();
 
   const [isExamQualifier, setIsExamQualifier] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -150,10 +155,15 @@ const Dashboard = () => {
           stableCoinABI,
           stableCoinAddress
         );
+        const tokenPriceIn = new web3.eth.Contract(
+          tokenPriceABI,
+          tokenPriceAddress
+        );
 
         setContractInstance(contractInstance);
         setExamInstance(examInstance);
         setStableCoinInstance(stableInstance);
+        setTokenPriceInstance(tokenPriceIn);
         const isExamPassed = await examInstance.methods
           .isPass(connectedAddress)
           .call({ from: connectedAddress });
@@ -225,6 +235,11 @@ const Dashboard = () => {
           .startTime()
           .call({ from: connectedAddress });
         setStartTime(startTime);
+
+        let tokenPriceof = await tokenPriceInstance.methods
+          .priceStable()
+          .call({ from: connectedAddress });
+        setTokenPrice(tokenPriceof);
         let startRound = await contractInstance.methods
           .startRound(connectedAddress)
           .call({ from: connectedAddress });
@@ -1024,13 +1039,14 @@ const Dashboard = () => {
             <div className="col-lg-3 col-sm-6">
               <div className="box">
                 <p id="totalReward" className="cards-numbers">
-                  {Number(startTime) > 0
-                    ? moment.unix(Number(startTime)).format("DD-MMMM-YYYY")
-                    : "00/00/0000"}
-
+                  {tokenPrice
+                    ? parseFloat(
+                        Web3.utils.fromWei(tokenPrice, "ether")
+                      ).toFixed(2) + " USDT"
+                    : 0}{" "}
                   <span className="sub-number"></span>
                 </p>
-                <p className="cards-title">Strat Time</p>
+                <p className="cards-title">Token Price</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
