@@ -938,7 +938,7 @@ const Dashboard = () => {
                         .format("DD-MMMM-YYYY")
                     : "00/00/00"}
                 </p>
-                <p className="cards-title">Curr Round Start Time</p>
+                <p className="cards-title">Curr Round Start Date</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
@@ -983,7 +983,7 @@ const Dashboard = () => {
                     ? moment.unix(Number(regTime)).format("DD-MMMM-YYYY")
                     : "00/00/00"}
                 </p>
-                <p className="cards-title">Register Time</p>
+                <p className="cards-title">Register Date</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
@@ -1021,7 +1021,7 @@ const Dashboard = () => {
                       ).toFixed(2) + " ZFT"
                     : "0.00 ZFT"}{" "}
                 </p>
-                <p className="cards-title">Stake Amount</p>
+                <p className="cards-title">Total Staked</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
@@ -1033,7 +1033,7 @@ const Dashboard = () => {
                       ).toFixed(2) + " ZFT"
                     : 0}{" "}
                 </p>
-                <p className="cards-title">Register Time</p>
+                <p className="cards-title">User Stake</p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
