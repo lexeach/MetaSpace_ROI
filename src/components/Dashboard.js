@@ -1041,7 +1041,7 @@ const Dashboard = () => {
                 <p id="totalReward" className="cards-numbers">
                   {tokenPrice
                     ? parseFloat(
-                        Web3.utils.fromWei((1 / priceInWei) * 10**18, "ether")
+                        Web3.utils.fromWei((1 / priceStable) * 10**18, "ether")
                       ).toFixed(2) + " USDT"
                     : 0}{" "}
                   <span className="sub-number"></span>
