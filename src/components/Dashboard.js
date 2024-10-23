@@ -239,7 +239,7 @@ const Dashboard = () => {
         let tokenPriceof = await tokenPriceInstance.methods
           .priceStable()
           .call({ from: connectedAddress });
-        setTokenPrice((1/tokenPriceof) * 10 **18);
+        setTokenPrice(tokenPriceof);
         let startRound = await contractInstance.methods
           .startRound(connectedAddress)
           .call({ from: connectedAddress });
