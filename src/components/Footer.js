@@ -20,7 +20,7 @@ const Footer = () => (
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Swap MSC
+                Buy-Sell ZFT
               </a>
             </li>
             {/* <li>
