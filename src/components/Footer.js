@@ -9,14 +9,14 @@ const Footer = () => (
       <div className="row">
         <div className="col-md-4">
           <h5>About Us</h5>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+          <p>We trade on toy fund and make profit on your deposit.</p>
         </div>
         <div className="col-md-4">
           <h5>Quick Links</h5>
           <ul className="list-unstyled">
             <li>
               <a
-                href="https://scan.KBCfoundation.com/"
+                href="https://changex.netlify.app/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
