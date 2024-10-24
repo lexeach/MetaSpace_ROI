@@ -4,8 +4,8 @@ import moment from "moment";
 import {
   contractAddress,
   abi,
-  examAddress,
-  examABI,
+  // examAddress,
+  // examABI,
   stableCoinAddress,
   stableCoinABI,
   tokenPriceAddress,
@@ -150,7 +150,7 @@ const Dashboard = () => {
         const web3 = new Web3(window.ethereum);
         setWeb3(web3);
         const contractInstance = new web3.eth.Contract(abi, contractAddress);
-        const examInstance = new web3.eth.Contract(examABI, examAddress);
+        // const examInstance = new web3.eth.Contract(examABI, examAddress);
         const stableInstance = new web3.eth.Contract(
           stableCoinABI,
           stableCoinAddress
@@ -161,13 +161,13 @@ const Dashboard = () => {
         );
 
         setContractInstance(contractInstance);
-        setExamInstance(examInstance);
+        // setExamInstance(examInstance);
         setStableCoinInstance(stableInstance);
         setTokenPriceInstance(tokenPriceIn);
-        const isExamPassed = await examInstance.methods
-          .isPass(connectedAddress)
-          .call({ from: connectedAddress });
-        setIsExamQualifier(isExamPassed);
+        // const isExamPassed = await examInstance.methods
+        //   .isPass(connectedAddress)
+        //   .call({ from: connectedAddress });
+        // setIsExamQualifier(isExamPassed);
       }
     };
     initWeb3AndContracts();
@@ -1039,9 +1039,10 @@ const Dashboard = () => {
             <div className="col-lg-3 col-sm-6">
               <div className="box">
                 <p id="totalReward" className="cards-numbers">
+                  {/* {(1 / Number(tokenPrice)) * 10 ** 18} */}
                   {tokenPrice
                     ? parseFloat(
-                        Web3.utils.fromWei(tokenPrice, "ether")
+                        ((1 / Number(tokenPrice)) * 10 ** 18).toString()
                       ).toFixed(2) + " USDT"
                     : 0}{" "}
                   <span className="sub-number"></span>
