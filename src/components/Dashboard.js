@@ -389,10 +389,11 @@ const Dashboard = () => {
         let withdrawableRoyality2 = await contractInstance.methods
           .withdrawableRoyality2(connectedAddress) //connectedAddress
           .call({ from: connectedAddress });
+        // console.log("users1 all Data: ", users1);
         const userList = [
           { title: "User ID", value: Number(users1.id) },
           { title: "Referrer ID", value: Number(users1.referrerID) },
-          { title: "Referred Users", value: users1.referredUsers1 },
+          { title: "Referred Users", value: Number(users1.referredUsers) },
           {
             title: "Income",
             value:
@@ -404,11 +405,12 @@ const Dashboard = () => {
           },
           {
             title: "Level Income Received",
-            value: users1.levelIncomeReceived
-              ? parseFloat(
-                  Web3.utils.fromWei(users1.levelIncomeReceived, "ether")
-                ).toFixed(2) + " ZFT"
-              : "0.00 ZFT",
+            value: Number(users1.levelIncomeReceived),
+            // users1.levelIncomeReceived
+            // ? parseFloat(
+            //     Web3.utils.fromWei(users1.levelIncomeReceived, "ether")
+            //   ).toFixed(2) + " ZFT"
+            //   : "0.00 ZFT"
           },
           {
             title: "Taken ROI",
@@ -1015,13 +1017,19 @@ const Dashboard = () => {
             <div className="col-lg-3 col-sm-6">
               <div className="box">
                 <p id="partnerCount1" className="cards-numbers">
-                  {totalDeposit
-                    ? parseFloat(
-                        Web3.utils.fromWei(totalDeposit, "ether")
-                      ).toFixed(2) + " ZFT"
-                    : "0.00 ZFT"}{" "}
+                  {isOwner
+                    ? totalDeposit
+                      ? parseFloat(
+                          Web3.utils.fromWei(totalDeposit, "ether")
+                        ).toFixed(2) + " ZFT"
+                      : "0.00 ZFT"
+                    : Number(users[4].value) > 0
+                    ? Number(users[4].value)
+                    : "0"}
                 </p>
-                <p className="cards-title">Total Staked</p>
+                <p className="cards-title">
+                  {isOwner ? "Total Staked" : "Level Income Received"}
+                </p>
               </div>
             </div>
             <div className="col-lg-3 col-sm-6">
