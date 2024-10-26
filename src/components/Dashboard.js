@@ -404,7 +404,7 @@ const Dashboard = () => {
                 : "0.00 ZFT",
           },
           {
-            title: "Level Income Received",
+            title: "Team size",
             value: Number(users1.levelIncomeReceived),
             // users1.levelIncomeReceived
             // ? parseFloat(
@@ -1031,7 +1031,7 @@ const Dashboard = () => {
                     : "0"}
                 </p>
                 <p className="cards-title">
-                  {isOwner ? "Total Staked" : "Level Income Received"}
+                  {isOwner ? "Total Staked" : "Team size"}
                 </p>
               </div>
             </div>
