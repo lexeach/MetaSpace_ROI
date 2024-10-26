@@ -1017,13 +1017,16 @@ const Dashboard = () => {
             <div className="col-lg-3 col-sm-6">
               <div className="box">
                 <p id="partnerCount1" className="cards-numbers">
+                  {/* {console.log("USsers ", users)} */}
                   {isOwner
                     ? totalDeposit
                       ? parseFloat(
                           Web3.utils.fromWei(totalDeposit, "ether")
                         ).toFixed(2) + " ZFT"
                       : "0.00 ZFT"
-                    : Number(users[4].value) > 0
+                    : users.length > 3
+                    ? Number(users[4].value)
+                    : 0 > 0
                     ? Number(users[4].value)
                     : "0"}
                 </p>
