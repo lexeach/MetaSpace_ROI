@@ -1424,7 +1424,7 @@ const Dashboard = () => {
               <div className="swap-head text-center">Withdraw Principal</div>
               <div className="pay text-center mt-5">
                 //<button className="mybtn1" onClick={handleWithdrawPrincipal}>
-                  Withdraw Principal
+                  //Withdraw Principal
                 </button>
               </div>
             </div>
