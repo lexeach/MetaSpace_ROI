@@ -1421,10 +1421,10 @@ const Dashboard = () => {
           {/* {(users.length > 0 ? Number(users[0].value) : 0) > 0 && ( */}
           <div id="onlyExamQualifier1" className="col-lg-6 mt-4">
             <div className="swap-wrap p-5">
-              <div className="swap-head text-center">Withdraw Principal</div>
+              //<div className="swap-head text-center">Withdraw Principal</div>
               <div className="pay text-center mt-5">
                 //<button className="mybtn1" onClick={handleWithdrawPrincipal}>
-                  //Withdraw Principal
+                  Withdraw Principal
                 </button>
               </div>
             </div>
