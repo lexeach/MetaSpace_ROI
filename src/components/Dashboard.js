@@ -865,6 +865,20 @@ const Dashboard = () => {
   };
   const handleWithdrawPrincipal = async () => {
     try {
+      let endTime = await contractInstance.methods.endTime(connectedAddress).call({ from: connectedAddress });
+      // Convert Bignumber of endTime to Integer so we compared to current Blocktime stamp
+      let endTimeInt = parseInt(endTime);
+      // Get Current Block Time
+      let currentTime = Math.floor(Date.now() / 1000);
+      // Check if Current Time is greater than End Time
+      if (currentTime <= endTimeInt) { 
+        alert("You can not withdraw Principal before End Time");    
+        return;
+      }
+      if (endTimeInt == 0) { 
+        alert("You can not withdraw Principal Because You Do not Stacked");    
+        return;
+      }
       await contractInstance.methods
         .withdrawPrincipal()
         .send({ from: connectedAddress })
@@ -1425,7 +1439,7 @@ const Dashboard = () => {
               <div className="pay text-center mt-5">
                 //<button className="mybtn1" 
                   onClick={handleWithdrawPrincipal}
-                 disabled={true} // Button is now disabled 
+                //  disabled={true} // Button is now disabled 
                  >
                   Withdraw Principal
                 </button>
